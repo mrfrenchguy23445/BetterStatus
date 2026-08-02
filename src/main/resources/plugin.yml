@@ -1,0 +1,5 @@
+name: ServerStatus
+version: 1.0.0
+main: com.example.serverstatus.bungee.ServerStatusBungeePlugin
+author: wonton stew and french
+description: Broadcasts server maintenance and online status to backend servers via plugin messaging

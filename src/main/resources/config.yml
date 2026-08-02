@@ -1,0 +1,16 @@
+# ServerStatus - BungeeCord Configuration
+# List of servers to track (must match your BungeeCord server names exactly)
+
+servers:
+  - lobby
+  - survival
+  - dev
+
+# How often to ping servers and broadcast status (in seconds)
+update-interval: 5
+
+# Text returned by %srvstatus_<name>% placeholder
+messages:
+  online: "&aOnline"
+  offline: "&cOffline"
+  maintenance: "&6Maintenance"
