@@ -1,7 +1,7 @@
-name: BetterStatus
+name: BetterServerStatus
 version: 2.0.0
 main: org.updraft.betterstatus.backend.BackendStatusPlugin
 api-version: '1.20'
 author: MrFrenchGuy23
-softdepend: [PlaceholderAPI]
-description: Network status placeholders for BungeeCord and Velocity.
+softdepend: [PlaceholderAPI, Essentials, SuperVanish, PremiumVanish]
+description: Optional backend companion for BetterServerStatus with vanish-aware player counts.
