@@ -1,0 +1,19 @@
+servers:
+  - lobby
+  - survival
+  - dev
+settings:
+  update-interval-seconds: 5
+  timeout-millis: 3000
+  failure-threshold: 3
+  recovery-threshold: 2
+  warning-ping-millis: 150
+  critical-ping-millis: 300
+messages:
+  online: "&aOnline"
+  offline: "&cOffline"
+  maintenance: "&6Maintenance"
+storage:
+  enabled: true
+discord:
+  webhook-url: ""
