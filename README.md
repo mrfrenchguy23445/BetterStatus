@@ -1,4 +1,4 @@
-# BetterStatus
+# BetterServerStatus
 
 A Minecraft network monitoring plugin with separate BungeeCord and Velocity proxy adapters and a Paper/Spigot PlaceholderAPI backend.
 
@@ -112,6 +112,17 @@ Placeholder requests only read the backend cache. Unknown server names return `U
 - `/srvstatus history <server>` — show recent transitions (BungeeCord).
 
 Permission: `serverstatus.admin`. Velocity additionally checks `serverstatus.view` for command visibility.
+
+## Vanish integration
+
+When the BetterServerStatus backend companion is installed on a monitored Paper/Spigot server, it detects vanished players and reports a hidden-player adjustment to the proxy. The BungeeCord and Velocity adapters subtract that adjustment from the monitored online count, so staff in vanish do not inflate server or network player counts.
+
+Supported integrations:
+- EssentialsX vanish through its User API.
+- SuperVanish and PremiumVanish through their API when available.
+- The common `vanished` player metadata flag as a compatibility fallback.
+
+Install the backend companion on each server where vanish-aware counts are required. The proxy-only adapters cannot inspect backend vanish state by themselves. This feature changes reported online counts; it does not change the server's actual player list or hide players in-game.
 
 ## States
 
