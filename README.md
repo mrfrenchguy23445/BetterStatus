@@ -81,7 +81,7 @@ Additional placeholders:
 | `%srvstatus_lobby_lastseen%` | Last successful check timestamp |
 | `%srvstatus_lobby_health%` | Health state |
 
-Placeholder requests only read the backend cache. Unknown server names return `Unknown`.
+Placeholder requests only read the backend cache. Unknown server names return `Unknown`. Network-wide placeholders are also available: `%srvstatus_total_players%`, `%srvstatus_total_max%`, `%srvstatus_total_servers%`, `%srvstatus_online_servers%`, `%srvstatus_offline_servers%`, and `%srvstatus_network_status%`.
 
 ## Commands
 
