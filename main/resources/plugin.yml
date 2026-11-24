@@ -1,8 +1,0 @@
-name: ServerStatus
-version: 1.goon.sauceeeyy
-api-version: '1.20'
-main: com.example.serverstatus.spigot.ServerStatusSpigotPlugin
-author: wonton and french
-description: Provides PlaceholderAPI placeholders for server status from bungee
-softdepend:
-  - PlaceholderAPI
