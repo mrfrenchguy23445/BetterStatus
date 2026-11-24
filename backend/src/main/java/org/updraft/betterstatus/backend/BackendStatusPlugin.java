@@ -50,6 +50,10 @@ public final class BackendStatusPlugin extends JavaPlugin implements PluginMessa
         switch (key) {
             case "total_players": return Integer.toString(cache.values().stream().mapToInt(WireStatus::players).sum());
             case "total_max": return Integer.toString(cache.values().stream().mapToInt(WireStatus::maxPlayers).sum());
+            case "playercount":
+            case "total_playercount":
+                return playerCount(cache.values().stream().mapToInt(WireStatus::players).sum(),
+                        cache.values().stream().mapToInt(WireStatus::maxPlayers).sum());
             case "total_servers": return Integer.toString(cache.size());
             case "online_servers": return Long.toString(cache.values().stream().filter(s -> s.state() == ServerState.ONLINE || s.state() == ServerState.DEGRADED).count());
             case "offline_servers": return Long.toString(cache.values().stream().filter(s -> s.state() == ServerState.OFFLINE || s.state() == ServerState.UNREACHABLE).count());
@@ -62,7 +66,7 @@ public final class BackendStatusPlugin extends JavaPlugin implements PluginMessa
 
         String field = "status";
         int split = key.lastIndexOf('_');
-        if (split > 0 && Set.of("state", "players", "max", "ping", "motd", "version", "uptime", "downtime", "lastseen", "online", "health", "maintenance").contains(key.substring(split + 1))) {
+        if (split > 0 && Set.of("state", "players", "max", "playercount", "ping", "motd", "version", "uptime", "downtime", "lastseen", "online", "health", "maintenance").contains(key.substring(split + 1))) {
             field = key.substring(split + 1);
             key = key.substring(0, split);
         }
@@ -72,6 +76,7 @@ public final class BackendStatusPlugin extends JavaPlugin implements PluginMessa
             case "state", "health" -> status.state().name();
             case "players" -> Integer.toString(status.players());
             case "max" -> Integer.toString(status.maxPlayers());
+            case "playercount" -> playerCount(status.players(), status.maxPlayers());
             case "ping" -> status.pingMillis() < 0 ? "Unknown" : Long.toString(status.pingMillis());
             case "motd" -> status.motd();
             case "version" -> status.version();
@@ -82,6 +87,10 @@ public final class BackendStatusPlugin extends JavaPlugin implements PluginMessa
             case "maintenance" -> Boolean.toString(status.state() == ServerState.MAINTENANCE);
             default -> status.legacyStatus();
         };
+    }
+
+    private String playerCount(int online, int max) {
+        return online + "/" + max;
     }
 
     @Override public void onDisable() {
