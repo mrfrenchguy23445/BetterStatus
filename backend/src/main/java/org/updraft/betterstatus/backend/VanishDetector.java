@@ -5,7 +5,6 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
-import java.util.Locale;
 
 final class VanishDetector {
     private final BackendStatusPlugin plugin;
@@ -51,20 +50,23 @@ final class VanishDetector {
     }
 
     private boolean isSuperVanishVanished(Player player) {
-        for (String className : new String[]{
-                "de.myzelyam.api.vanish.VanishAPI",
-                "de.myzelyam.api.vanish.PremiumVanishAPI"
-        }) {
-            try {
-                Class<?> api = Class.forName(className, false, plugin.getServer().getClass().getClassLoader());
-                for (Method method : api.getMethods()) {
-                    if (!method.getName().equals("isInvisible") || method.getParameterCount() != 1) continue;
-                    if (method.getParameterTypes()[0].isAssignableFrom(player.getClass())
-                            || method.getParameterTypes()[0].isInstance(player)) {
-                        return Boolean.TRUE.equals(method.invoke(null, player));
+        for (String pluginName : new String[]{"SuperVanish", "PremiumVanish"}) {
+            Plugin vanishPlugin = plugin.getServer().getPluginManager().getPlugin(pluginName);
+            if (vanishPlugin == null) continue;
+            for (String className : new String[]{
+                    "de.myzelyam.api.vanish.VanishAPI",
+                    "de.myzelyam.api.vanish.PremiumVanishAPI"
+            }) {
+                try {
+                    Class<?> api = Class.forName(className, false, vanishPlugin.getClass().getClassLoader());
+                    for (Method method : api.getMethods()) {
+                        if (!method.getName().equals("isInvisible") || method.getParameterCount() != 1) continue;
+                        if (method.getParameterTypes()[0].isInstance(player)) {
+                            return Boolean.TRUE.equals(method.invoke(null, player));
+                        }
                     }
+                } catch (ReflectiveOperationException | LinkageError ignored) {
                 }
-            } catch (ReflectiveOperationException | LinkageError ignored) {
             }
         }
         return false;
