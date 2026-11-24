@@ -63,7 +63,10 @@ public final class MonitorEngine implements ServerStatusApi, AutoCloseable {
         long lastSuccess = old.lastSuccessMillis();
         long uptimeSince = old.uptimeSinceMillis();
 
-        if (old.maintenance()) {\n            state = ServerState.MAINTENANCE;\n            if (ping.reachable()) lastSuccess = now;\n        } else if (ping.reachable()) {
+        if (old.maintenance()) {
+            state = ServerState.MAINTENANCE;
+            if (ping.reachable()) lastSuccess = now;
+        } else if (ping.reachable()) {
             failures.put(name, 0);
             int recovered = recoveries.merge(name, 1, Integer::sum);
             lastSuccess = now;
