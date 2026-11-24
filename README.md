@@ -65,7 +65,7 @@ The existing placeholder is retained:
 
 - `%srvstatus_lobby%` — configured legacy status text.
 
-Additional placeholders:
+Per-server placeholders:
 
 | Placeholder | Value |
 | --- | --- |
@@ -73,6 +73,7 @@ Additional placeholders:
 | `%srvstatus_lobby_online%` | Boolean online indicator |
 | `%srvstatus_lobby_players%` | Current players |
 | `%srvstatus_lobby_max%` | Maximum players |
+| `%srvstatus_lobby_playercount%` | Combined count, for example `12/100` |
 | `%srvstatus_lobby_ping%` | Ping in milliseconds |
 | `%srvstatus_lobby_motd%` | MOTD |
 | `%srvstatus_lobby_version%` | Server version |
@@ -81,7 +82,27 @@ Additional placeholders:
 | `%srvstatus_lobby_lastseen%` | Last successful check timestamp |
 | `%srvstatus_lobby_health%` | Health state |
 
-Placeholder requests only read the backend cache. Unknown server names return `Unknown`. Network-wide placeholders are also available: `%srvstatus_total_players%`, `%srvstatus_total_max%`, `%srvstatus_total_servers%`, `%srvstatus_online_servers%`, `%srvstatus_offline_servers%`, and `%srvstatus_network_status%`.
+Network-wide placeholders:
+
+| Placeholder | Value |
+| --- | --- |
+| `%srvstatus_playercount%` | Total online players / total capacity, e.g. `24/500` |
+| `%srvstatus_total_playercount%` | Alias of the network player count |
+| `%srvstatus_total_players%` | Total online players only |
+| `%srvstatus_total_max%` | Total player capacity |
+| `%srvstatus_total_servers%` | Number of monitored servers |
+| `%srvstatus_online_servers%` | Online/degraded server count |
+| `%srvstatus_offline_servers%` | Offline/unreachable server count |
+| `%srvstatus_network_status%` | Aggregate network state |
+
+Example TAB/scoreboard line:
+
+```
+Players: %srvstatus_playercount%
+Lobby: %srvstatus_lobby_playercount%
+```
+
+Placeholder requests only read the backend cache. Unknown server names return `Unknown`.
 
 ## Commands
 
