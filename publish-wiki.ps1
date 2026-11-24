@@ -381,7 +381,7 @@ Run Maven from the root so the common module is built before the adapters.
 }
 
 foreach ($entry in $pages.GetEnumerator()) {
-    $content = $entry.Value.Replace("```", [string]([char]96) * 3)
+    $content = $entry.Value.Replace("@@FENCE@@", ([string][char]96) * 3)
     [System.IO.File]::WriteAllText((Join-Path $workDir $entry.Key), $content, $utf8)
 }
 
