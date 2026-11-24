@@ -1,0 +1,7 @@
+name: BetterStatus
+version: 2.0.0
+main: org.updraft.betterstatus.backend.BackendStatusPlugin
+api-version: '1.20'
+author: MrFrenchGuy23
+softdepend: [PlaceholderAPI]
+description: Network status placeholders for BungeeCord and Velocity.
