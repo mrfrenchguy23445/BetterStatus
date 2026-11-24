@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BackendStatusPlugin extends JavaPlugin implements PluginMessageListener {
     private static final String CHANNEL = "BungeeCord";
     private final Map<String, WireStatus> cache = new ConcurrentHashMap<>();
+    private final VanishDetector vanishDetector = new VanishDetector(this);
 
     @Override public void onEnable() {
         getServer().getMessenger().registerOutgoingPluginChannel(this, CHANNEL);
@@ -31,6 +32,7 @@ public final class BackendStatusPlugin extends JavaPlugin implements PluginMessa
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             DataOutputStream output = new DataOutputStream(bytes);
             output.writeUTF(StatusProtocol.SUBCHANNEL);
+            output.writeInt(vanishDetector.countVanishedPlayers());
             player.sendPluginMessage(this, CHANNEL, bytes.toByteArray());
         } catch (IOException ignored) { }
     }
