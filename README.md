@@ -100,7 +100,7 @@ Permission: `serverstatus.admin`. Velocity additionally checks `serverstatus.vie
 
 The proxy monitoring engine pings backends independently of player count. Backend status delivery currently uses the BungeeCord plugin-message channel, so a backend needs at least one connected player to request fresh snapshots. Player-independent authenticated TCP/TLS transport is not implemented in this version.
 
-Maintenance can be set through the shared monitoring API, but automatic hooks for third-party Maintenance plugins are not bundled. MySQL, network-wide aggregate analytics, automatic hot reload and a player-independent transport are also not included yet.
+The BungeeCord adapter automatically attempts to hook the Maintenance plugin API when it is installed. Both proxy adapters expose the shared `ServerStatusApi`; integrations can call `setMaintenance(server, true/false)` to control a maintenance state. MySQL, network-wide aggregate analytics, automatic hot reload and a player-independent transport are also not included yet.
 
 ## Security
 
