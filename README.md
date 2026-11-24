@@ -1,80 +1,107 @@
-# ServerStatus
+# BetterStatus
 
-A Minecraft plugin that tracks the online/maintenance state of your backend servers and exposes it through [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) placeholders.
+A Minecraft network monitoring plugin with separate BungeeCord and Velocity proxy adapters and a Paper/Spigot PlaceholderAPI backend.
 
-- **BungeeCord side** (`serverstatus-bungee`): pings tracked servers, checks maintenance status via the [Maintenance](https://www.spigotmc.org/resources/maintenance.61799/) plugin API, and broadcasts the results to backend servers over the `BungeeCord` plugin messaging channel.
-- **Spigot side** (`serverstatus-spigot`): receives the statuses and registers a PlaceholderAPI expansion so you can use the status in any PlaceholderAPI-compatible plugin (scoreboards, tablists, chat, etc.).
+## Modules
 
-## Placeholders
-
-| Placeholder | Description |
-| --- | --- |
-| `%srvstatus_<server>%` | Returns the status of the given server, e.g. `%srvstatus_lobby%` |
-
-Placeholder values are the status messages defined in the Bungee config (caseinsensitive server names):
-
-- `&aOnline` (green "Online")
-- `&cOffline` (red "Offline")
-- `&6Maintenance` (gold "Maintenance")
-- `Unknown` (returned by the Spigot side when no status has been received yet)
+- `common`: immutable status snapshots, asynchronous monitoring/state transitions, versioned bounded plugin-message protocol, public API, SQLite history and Discord webhook support.
+- `proxy-bungee`: BungeeCord/Waterfall adapter, monitoring, `/srvstatus` commands, history and webhook alerts.
+- `proxy-velocity`: Velocity-native adapter with the same monitoring core and command.
+- `backend`: Bukkit/Paper plugin that receives proxy snapshots and registers PlaceholderAPI placeholders.
 
 ## Requirements
 
-- **Proxy**: BungeeCord (or a fork such as Waterfall) with the [Maintenance](https://www.spigotmc.org/resources/maintenance.61799/) plugin installed
-- **Backend**: Spigot/Paper 1.20.4+ with [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) installed
-- **Java**: 17+
+- JDK 21+
+- Maven 3.9+
+- BungeeCord/Waterfall or Velocity 3.x (install only one proxy adapter)
+- Paper/Spigot 1.20+ on backend servers
+- PlaceholderAPI for placeholders
 
-## Installation
+## Build
 
-1. Build the project with `mvn clean package` (the parent POM builds both modules).
-2. Copy `bungee/target/serverstatus-bungee.jar` into the proxy's `plugins` folder.
-3. Copy `spigot/target/serverstatus-spigot.jar` into the `plugins` folder of **every** backend server that should use the placeholders.
-4. Restart the proxy and the backend servers.
+From the repository root:
 
-## Configuration
+```sh
+mvn clean verify
+```
 
-### Proxy (`plugins/ServerStatus/config.yml`)
+Artifacts:
+- `proxy-bungee/target/betterstatus-bungee-2.0.0.jar`
+- `proxy-velocity/target/betterstatus-velocity-2.0.0.jar`
+- `backend/target/betterstatus-backend-2.0.0.jar`
+
+Install one proxy adapter on the proxy and the backend jar on every server where placeholders are needed. Do not install both proxy adapters on one proxy.
+
+## BungeeCord configuration
+
+On first startup, `plugins/BetterStatus/config.yml` is created:
 
 ```yaml
-# List of servers to track (must match your BungeeCord server names exactly)
 servers:
   - lobby
   - survival
-  - dev
-
-# How often to ping servers and broadcast status (in seconds)
-update-interval: 5
-
-# Text returned by %srvstatus_<name>% placeholder
+settings:
+  update-interval-seconds: 5
+  timeout-millis: 3000
+  failure-threshold: 3
+  recovery-threshold: 2
+  warning-ping-millis: 150
+  critical-ping-millis: 300
 messages:
   online: "&aOnline"
   offline: "&cOffline"
   maintenance: "&6Maintenance"
+storage:
+  enabled: true
+discord:
+  webhook-url: ""
 ```
 
-Servers are pinged immediately on enable, on a fixed `update-interval` schedule, and whenever a player joins the proxy. Maintenance status is taken from the Maintenance plugin if it is present; otherwise the server falls back to online/offline detection only.
+Velocity creates `plugins/betterstatus/config.properties` with equivalent monitoring settings. Configure `servers` as a comma-separated list of exact proxy server names. SQLite history is stored in the plugin data directory. Discord notifications remain disabled until a webhook URL is configured.
 
-### PlaceholderAPI (`plugins/PlaceholderAPI/config.yml`)
+## Placeholders
 
-`softdepend: PlaceholderAPI` is already set. After both plugins are running, the `srvstatus` expansion registers automatically; no manual `papi ecloud download` is needed.
+The existing placeholder is retained:
 
-## Usage examples
+- `%srvstatus_lobby%` — configured legacy status text.
 
-In a PlaceholderAPI-compatible plugin (e.g. a scoreboard or tab plugin):
+Additional placeholders:
 
-```
-%srvstatus_lobby%
-%srvstatus_survival%
-```
+| Placeholder | Value |
+| --- | --- |
+| `%srvstatus_lobby_state%` | State enum |
+| `%srvstatus_lobby_online%` | Boolean online indicator |
+| `%srvstatus_lobby_players%` | Current players |
+| `%srvstatus_lobby_max%` | Maximum players |
+| `%srvstatus_lobby_ping%` | Ping in milliseconds |
+| `%srvstatus_lobby_motd%` | MOTD |
+| `%srvstatus_lobby_version%` | Server version |
+| `%srvstatus_lobby_uptime%` | Uptime in seconds |
+| `%srvstatus_lobby_downtime%` | Time since last successful ping |
+| `%srvstatus_lobby_lastseen%` | Last successful check timestamp |
+| `%srvstatus_lobby_health%` | Health state |
 
-## Building
+Placeholder requests only read the backend cache. Unknown server names return `Unknown`.
 
-```
-mvn clean package
-```
+## Commands
 
-Requires Maven 3.6+ and JDK 17+.
+- `/srvstatus` or `/srvstatus list` — list monitored servers.
+- `/srvstatus info <server>` — show a server snapshot.
+- `/srvstatus check <server|all>` — queue a fresh check.
+- `/srvstatus history <server>` — show recent transitions (BungeeCord).
 
-## Authors
+Permission: `serverstatus.admin`. Velocity additionally checks `serverstatus.view` for command visibility.
 
-Wontonstew and Frenchguy
+## States
+
+`UNKNOWN`, `STARTING`, `ONLINE`, `DEGRADED`, `MAINTENANCE`, `RESTARTING`, `UNREACHABLE`, and `OFFLINE`. Configurable failure/recovery thresholds reduce flapping. Ping thresholds are configurable.
+
+## Transport limitations
+
+The proxy monitoring engine pings backends independently of player count. Backend status delivery currently uses the BungeeCord plugin-message channel, so a backend needs at least one connected player to request fresh snapshots. Player-independent authenticated TCP/TLS transport is not implemented in this version.
+
+Maintenance can be set through the shared monitoring API, but automatic hooks for third-party Maintenance plugins are not bundled. MySQL, network-wide aggregate analytics, automatic hot reload and a player-independent transport are also not included yet.
+
+## Security
+
+Inbound plugin messages have packet-size and server-count bounds and malformed packets are rejected. Monitoring and webhook delivery are asynchronous. Keep webhook URLs private and never commit real credentials.
