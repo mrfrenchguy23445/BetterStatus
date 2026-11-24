@@ -1,0 +1,2 @@
+package org.updraft.betterstatus.model;
+public record PingResult(boolean reachable,int players,int maxPlayers,long pingMillis,String motd,String version,String failureReason) { public static PingResult failure(String reason){return new PingResult(false,0,0,-1,"","",reason==null?"No response":reason);} }
