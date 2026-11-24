@@ -1,0 +1,4 @@
+name: BetterStatus
+main: org.updraft.betterstatus.bungee.BungeeStatusPlugin
+version: 2.0.0
+author: MrFrenchGuy23
