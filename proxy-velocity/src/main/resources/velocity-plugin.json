@@ -1,0 +1,8 @@
+{
+  "id": "betterstatus",
+  "name": "BetterServerStatus",
+  "version": "2.0.0",
+  "description": "Server monitoring and status reporting for Velocity proxies.",
+  "authors": ["MrFrenchGuy23"],
+  "main": "org.updraft.betterstatus.velocity.VelocityStatusPlugin"
+}
